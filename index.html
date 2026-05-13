@@ -1,71 +1,89 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Quiz</title>
-	<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz des départements français</title>
+    <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
-	<div id="quiz">
-		<div id="question" class="texte"></div>
+    <div id="app-container">
 
-		<div id="choix"></div>
+        <div id="home-screen" class="screen active">
+            <h1 class="ui-title">Configuration du quiz</h1>
 
-		<div id="saisie-reponse" style="display: none;">
-			<input type="text" class="style-input" id="entreeUtilisateur" placeholder="Votre réponse" maxlength="50">
-			<br>
-			<button class="bouton-style" onclick="verifierReponse()">Valider</button>
-		</div>
-		
-		<p id="nbBonneReponse" class="texte"></p>
-	</div>
+            <div class="form-group">
+                <label for="mode-select" class="ui-label">Mode de jeu :</label>
+                <select id="mode-select" class="input-style">
+                    <option value="guessNameByCode">Trouver le département par son numéro</option>
+                    <option value="guessCodeByName">Trouver le numéro par le nom du département</option>
+                    <option value="guessRegionByName">Trouver la région par le nom du département</option>
+                    <option value="guessRegionByCode">Trouver la région par le numéro du département</option>
+                </select>
+            </div>
 
-	<!-- Overlay réponse -->
-	<div id="reponse" class="overlay"  style="display: none;">
-		<div id="bonne-mauvaise-reponse" class="texte"></div>
-		<div id="affichage-reponse" class="texte"></div>
-		<button class="bouton-style" onclick="document.getElementById('reponse').style.display = 'none'; quiz.style.display = 'block'; if (questionActuelle < quizData.length) { chargerQuestion(); } else { pageFin(); }">Suivant</button>
-	</div>
+            <div class="form-group">
+                <label for="questions-count" class="ui-label">À combien de questions voulez-vous répondre ?</label>
+                <input type="number" id="questions-count" class="input-style" placeholder="Ex: 10" value="10" min="1"
+                    max="101">
+            </div>
 
-	<!-- Overlay acceuil -->
-	<div id="page-acceuil" class="overlay">
+            <div class="form-group checkbox-group">
+                <input type="checkbox" id="text-input-mode" class="checkbox-style">
+                <label for="text-input-mode" class="ui-label">Taper les réponses au clavier (sans choix)</label>
+            </div>
 
-		<p class="texte">Mode de jeu :</p>
+            <div id="choices-count-container" class="form-group">
+                <label for="choices-count" class="ui-label">Combien de propositions voulez-vous ?</label>
+                <input type="number" id="choices-count" class="input-style" placeholder="4" value="4" min="2"
+                    max="10">
+            </div>
 
-		<select id="menu-choix-mode" class="style-input" onchange="modeSelectionne = document.getElementById('menu-choix-mode').value;">
-			<option value="numeroADepartement">Trouver le département en fonction de son numéro</option>
-			<option value="departementANumero">Trouver le numéro en fonction du nom du département</option>
-			<option value="departementARegion">Trouver la région en fonction du nom du département</option>
-			<option value="numeroARegion">Trouver la région en fonction d'un numéro de département</option>
-		</select>
+            <button id="btn-start" class="btn-primary">Commencer le quiz</button>
+        </div>
 
-		<p class="texte">A combien de questions voulez-vous répondre ?</p>
+        <div id="game-screen" class="screen hidden">
+            <div class="quiz-header">
+                <p id="score-display" class="score-text">Question 1</p>
+            </div>
 
-		<input type="number" class="style-input" id="nombre-questions" placeholder="Nombre de questions">
+            <h2 id="question-text" class="question-text"></h2>
 
-		<div>
-			<p class="texte">Cochez cette case pour taper le nom des départements vous-même.</p>
-			<input type="checkbox" id="case-choix-saisie" class="case-style" onchange="supprimerQuestionNbProp()">
-		</div>
+            <div id="choices-container" class="choices-grid"></div>
 
-		<div id="conteneur-question-propositions" style="display:block;">
-			<p class="texte">Combien de propositions voulez-vous ?</p>
-			<input type="number" class="style-input" id="nombre-choix" placeholder="Nombre de choix">
-		</div>
+            <div id="text-input-container" class="hidden">
+                <label for="user-input" class="visually-hidden">Votre réponse</label>
+                <input type="text" id="user-input" class="input-style text-center"
+                    placeholder="Tapez votre réponse ici..." maxlength="50" autocomplete="off">
+                <button id="btn-submit-answer" class="btn-primary mt-15">Valider</button>
+            </div>
+        </div>
 
-		<button class="bouton-style" onclick="initialisationQuiz()">Valider</button>
-	</div>
+        <div id="feedback-screen" class="screen overlay hidden">
+            <div class="overlay-card">
+                <h2 id="feedback-title" class="feedback-title"></h2>
+                <p id="feedback-message" class="feedback-message"></p>
+                <button id="btn-next-question" class="btn-primary">Question suivante</button>
+            </div>
+        </div>
 
-	<!-- Overlay page-fin -->
-	<div id="page-fin" class="overlay">
-		<p id="score-final" class="texte"></p>
-		<p class="texte">Voulez-vous rejouer ?</p>
-		<button class="bouton-style" onclick="document.getElementById('page-acceuil').style.display = 'block', document.getElementById('page-fin').style.display = 'none'">Rejouer</button>
-	</div>
+        <div id="end-screen" class="screen overlay hidden">
+            <div class="overlay-card">
+                <h2 class="ui-title">Quiz terminé !</h2>
+                <p id="final-score" class="final-score-text"></p>
+                <p class="ui-label mt-15">Voulez-vous rejouer ?</p>
+                <button id="btn-restart" class="btn-primary">Rejouer</button>
+            </div>
+        </div>
 
+    </div>
 
-	<script src="script.js"></script>
-
+    <script src="js/data.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/main.js"></script>
 </body>
+
 </html>
