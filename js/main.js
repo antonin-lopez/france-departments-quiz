@@ -96,48 +96,57 @@ document.addEventListener('DOMContentLoaded', () => {
         const active = document.activeElement;
         const isArrowKey = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key);
 
-        if (isArrowKey) {
-            e.preventDefault();
+        if (!isArrowKey) return;
 
-            // On vérifie si on a des boutons de choix à l'écran
-            const buttons = Array.from(document.querySelectorAll('#choices-container:not(.hidden) .choice-btn'));
+        if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT')) {
+            return;
+        }
 
-            if (buttons.length > 0) {
-                // CAS 1 : Aucun bouton de choix n'a le focus. On donne le focus au premier.
-                if (!active || !active.classList.contains('choice-btn')) {
-                    buttons[0].focus();
-                    return;
-                }
+        e.preventDefault();
 
-                // CAS 2 : Un bouton a déjà le focus, on navigue dans la grille.
-                const currentIndex = buttons.indexOf(active);
-                let nextIndex = currentIndex;
+        const activeScreen = document.querySelector('.screen.active');
+        if (!activeScreen) return;
 
-                switch (e.key) {
-                    case 'ArrowLeft':
-                        if (currentIndex % 2 !== 0) nextIndex = currentIndex - 1;
-                        break;
-                    case 'ArrowRight':
-                        if (currentIndex % 2 === 0 && currentIndex + 1 < buttons.length) nextIndex = currentIndex + 1;
-                        break;
-                    case 'ArrowUp':
-                        if (currentIndex >= 2) nextIndex = currentIndex - 2;
-                        break;
-                    case 'ArrowDown':
-                        if (currentIndex + 2 < buttons.length) nextIndex = currentIndex + 2;
-                        else if (currentIndex + 1 < buttons.length && currentIndex % 2 === 0) nextIndex = currentIndex + 1;
-                        break;
-                }
+        if (activeScreen.id === 'game-screen') {
+            const choicesContainer = document.getElementById('choices-container');
 
-                if (nextIndex !== currentIndex && buttons[nextIndex]) {
-                    buttons[nextIndex].focus();
-                }
-            } else {
-                // CAS 3 : S'il n'y a pas de grille (Accueil, Feedback, Fin, ou mode Texte)
-                const mainBtn = document.querySelector('.screen.active .btn-primary:not(.hidden)');
-                if (mainBtn && active !== mainBtn) {
-                    mainBtn.focus();
-                }
+            if (choicesContainer.classList.contains('hidden')) return;
+
+            const buttons = Array.from(choicesContainer.querySelectorAll('.choice-btn'));
+            if (buttons.length === 0) return;
+
+            if (!active || !active.classList.contains('choice-btn')) {
+                buttons[0].focus();
+                return;
+            }
+
+            const currentIndex = buttons.indexOf(active);
+            let nextIndex = currentIndex;
+
+            switch (e.key) {
+                case 'ArrowLeft':
+                    if (currentIndex % 2 !== 0) nextIndex = currentIndex - 1;
+                    break;
+                case 'ArrowRight':
+                    if (currentIndex % 2 === 0 && currentIndex + 1 < buttons.length) nextIndex = currentIndex + 1;
+                    break;
+                case 'ArrowUp':
+                    if (currentIndex >= 2) nextIndex = currentIndex - 2;
+                    break;
+                case 'ArrowDown':
+                    if (currentIndex + 2 < buttons.length) nextIndex = currentIndex + 2;
+                    else if (currentIndex + 1 < buttons.length && currentIndex % 2 === 0) nextIndex = currentIndex + 1;
+                    break;
+            }
+
+            if (nextIndex !== currentIndex && buttons[nextIndex]) {
+                buttons[nextIndex].focus();
+            }
+        }
+        else {
+            const mainBtn = activeScreen.querySelector('.btn-primary:not(.hidden)');
+            if (mainBtn && active !== mainBtn) {
+                mainBtn.focus();
             }
         }
     });
@@ -196,7 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         btn.focus();
                     }
                 });
-                
+
                 btn.addEventListener('mouseleave', () => {
                     btn.blur();
                 });
