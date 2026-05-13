@@ -32,6 +32,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Écouteurs d'événements ---
 
+    document.querySelectorAll('.btn-primary').forEach(btn => {
+        btn.addEventListener('mousemove', () => {
+            if (document.activeElement !== btn) {
+                btn.focus();
+            }
+        });
+
+        btn.addEventListener('mouseleave', () => {
+            btn.blur();
+        });
+    });
+
     inputs.isTextMode.addEventListener('change', (e) => {
         if (e.target.checked) {
             inputs.choicesContainer.classList.add('hidden');
@@ -79,10 +91,62 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Navigation au clavier avec les flèches ---
+    document.addEventListener('keydown', (e) => {
+        const active = document.activeElement;
+        const isArrowKey = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key);
+
+        if (isArrowKey) {
+            e.preventDefault();
+
+            // On vérifie si on a des boutons de choix à l'écran
+            const buttons = Array.from(document.querySelectorAll('#choices-container:not(.hidden) .choice-btn'));
+
+            if (buttons.length > 0) {
+                // CAS 1 : Aucun bouton de choix n'a le focus. On donne le focus au premier.
+                if (!active || !active.classList.contains('choice-btn')) {
+                    buttons[0].focus();
+                    return;
+                }
+
+                // CAS 2 : Un bouton a déjà le focus, on navigue dans la grille.
+                const currentIndex = buttons.indexOf(active);
+                let nextIndex = currentIndex;
+
+                switch (e.key) {
+                    case 'ArrowLeft':
+                        if (currentIndex % 2 !== 0) nextIndex = currentIndex - 1;
+                        break;
+                    case 'ArrowRight':
+                        if (currentIndex % 2 === 0 && currentIndex + 1 < buttons.length) nextIndex = currentIndex + 1;
+                        break;
+                    case 'ArrowUp':
+                        if (currentIndex >= 2) nextIndex = currentIndex - 2;
+                        break;
+                    case 'ArrowDown':
+                        if (currentIndex + 2 < buttons.length) nextIndex = currentIndex + 2;
+                        else if (currentIndex + 1 < buttons.length && currentIndex % 2 === 0) nextIndex = currentIndex + 1;
+                        break;
+                }
+
+                if (nextIndex !== currentIndex && buttons[nextIndex]) {
+                    buttons[nextIndex].focus();
+                }
+            } else {
+                // CAS 3 : S'il n'y a pas de grille (Accueil, Feedback, Fin, ou mode Texte)
+                const mainBtn = document.querySelector('.screen.active .btn-primary:not(.hidden)');
+                if (mainBtn && active !== mainBtn) {
+                    mainBtn.focus();
+                }
+            }
+        }
+    });
+
     document.getElementById('btn-next-question').addEventListener('click', () => {
         if (game.nextQuestion()) {
             showScreen('end');
             ui.finalScore.innerText = `${game.score} / ${game.questions.length}`;
+            document.getElementById('btn-restart').focus();
         } else {
             showScreen('game');
             renderQuestion();
@@ -126,6 +190,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.className = 'choice-btn';
                 btn.innerText = choice;
                 btn.addEventListener('click', () => handleAnswerSubmission(choice));
+
+                btn.addEventListener('mousemove', () => {
+                    if (document.activeElement !== btn) {
+                        btn.focus();
+                    }
+                });
+                
+                btn.addEventListener('mouseleave', () => {
+                    btn.blur();
+                });
+
                 ui.choicesWrapper.appendChild(btn);
             });
         }

@@ -159,12 +159,10 @@ body {
     transition: var(--transition);
 }
 
-.btn-primary:hover {
-    background-color: var(--primary-hover);
-}
-
+.btn-primary:focus,
 .btn-primary:focus-visible {
     outline: none;
+    background-color: var(--primary-hover);
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.4);
 }
 
@@ -193,14 +191,11 @@ body {
     transition: var(--transition);
 }
 
-.choice-btn:hover {
-    border-color: var(--primary-color);
-    background-color: rgba(52, 152, 219, 0.05);
-}
-
+.choice-btn:focus,
 .choice-btn:focus-visible {
     outline: none;
     border-color: var(--primary-color);
+    background-color: rgba(52, 152, 219, 0.05); /* Ligne à rajouter */
     box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
 }
 
