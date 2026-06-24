@@ -32,18 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Écouteurs d'événements ---
 
-    document.querySelectorAll('.btn-primary').forEach(btn => {
-        btn.addEventListener('mousemove', () => {
-            if (document.activeElement !== btn) {
-                btn.focus();
-            }
-        });
-
-        btn.addEventListener('mouseleave', () => {
-            btn.blur();
-        });
-    });
-
     inputs.isTextMode.addEventListener('change', (e) => {
         if (e.target.checked) {
             inputs.choicesContainer.classList.add('hidden');
@@ -79,89 +67,23 @@ document.addEventListener('DOMContentLoaded', () => {
         renderQuestion();
     });
 
-    // Validation au clic
+    // Validation au clic uniquement
     document.getElementById('btn-submit-answer').addEventListener('click', () => {
         handleAnswerSubmission(inputs.userAnswer.value);
     });
 
-    // Validation à la touche "Entrée"
-    inputs.userAnswer.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            handleAnswerSubmission(inputs.userAnswer.value);
-        }
-    });
-
-    // --- Navigation au clavier avec les flèches ---
-    document.addEventListener('keydown', (e) => {
-        const active = document.activeElement;
-        const isArrowKey = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key);
-
-        if (!isArrowKey) return;
-
-        if (active && (active.tagName === 'INPUT' || active.tagName === 'SELECT')) {
-            return;
-        }
-
-        e.preventDefault();
-
-        const activeScreen = document.querySelector('.screen.active');
-        if (!activeScreen) return;
-
-        if (activeScreen.id === 'game-screen') {
-            const choicesContainer = document.getElementById('choices-container');
-
-            if (choicesContainer.classList.contains('hidden')) return;
-
-            const buttons = Array.from(choicesContainer.querySelectorAll('.choice-btn'));
-            if (buttons.length === 0) return;
-
-            if (!active || !active.classList.contains('choice-btn')) {
-                buttons[0].focus();
-                return;
-            }
-
-            const currentIndex = buttons.indexOf(active);
-            let nextIndex = currentIndex;
-
-            switch (e.key) {
-                case 'ArrowLeft':
-                    if (currentIndex % 2 !== 0) nextIndex = currentIndex - 1;
-                    break;
-                case 'ArrowRight':
-                    if (currentIndex % 2 === 0 && currentIndex + 1 < buttons.length) nextIndex = currentIndex + 1;
-                    break;
-                case 'ArrowUp':
-                    if (currentIndex >= 2) nextIndex = currentIndex - 2;
-                    break;
-                case 'ArrowDown':
-                    if (currentIndex + 2 < buttons.length) nextIndex = currentIndex + 2;
-                    else if (currentIndex + 1 < buttons.length && currentIndex % 2 === 0) nextIndex = currentIndex + 1;
-                    break;
-            }
-
-            if (nextIndex !== currentIndex && buttons[nextIndex]) {
-                buttons[nextIndex].focus();
-            }
-        }
-        else {
-            const mainBtn = activeScreen.querySelector('.btn-primary:not(.hidden)');
-            if (mainBtn && active !== mainBtn) {
-                mainBtn.focus();
-            }
-        }
-    });
-
+    // Passer à la question suivante au clic
     document.getElementById('btn-next-question').addEventListener('click', () => {
         if (game.nextQuestion()) {
             showScreen('end');
             ui.finalScore.innerText = `${game.score} / ${game.questions.length}`;
-            document.getElementById('btn-restart').focus();
         } else {
             showScreen('game');
             renderQuestion();
         }
     });
 
+    // Recommencer le quiz au clic
     document.getElementById('btn-restart').addEventListener('click', () => {
         showScreen('home');
     });
@@ -189,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (game.settings.isTextInput) {
             ui.choicesWrapper.classList.add('hidden');
             ui.textInputWrapper.classList.remove('hidden');
-            inputs.userAnswer.focus();
         } else {
             ui.textInputWrapper.classList.add('hidden');
             ui.choicesWrapper.classList.remove('hidden');
@@ -199,16 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 btn.className = 'choice-btn';
                 btn.innerText = choice;
                 btn.addEventListener('click', () => handleAnswerSubmission(choice));
-
-                btn.addEventListener('mousemove', () => {
-                    if (document.activeElement !== btn) {
-                        btn.focus();
-                    }
-                });
-
-                btn.addEventListener('mouseleave', () => {
-                    btn.blur();
-                });
 
                 ui.choicesWrapper.appendChild(btn);
             });
@@ -240,7 +151,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
         ui.feedbackMessage.innerText = contextMsg;
         showScreen('feedback');
-
-        document.getElementById('btn-next-question').focus();
     }
 });

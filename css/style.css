@@ -119,13 +119,6 @@ body {
     transition: var(--transition);
 }
 
-.input-style:focus,
-.input-style:focus-visible {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-}
-
 .checkbox-group {
     display: flex;
     align-items: center;
@@ -159,11 +152,9 @@ body {
     transition: var(--transition);
 }
 
-.btn-primary:focus,
-.btn-primary:focus-visible {
-    outline: none;
+.btn-primary:hover {
     background-color: var(--primary-hover);
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.4);
+    cursor: pointer;
 }
 
 /* Choices Grid */
@@ -191,12 +182,10 @@ body {
     transition: var(--transition);
 }
 
-.choice-btn:focus,
-.choice-btn:focus-visible {
-    outline: none;
+.choice-btn:hover {
     border-color: var(--primary-color);
-    background-color: rgba(52, 152, 219, 0.05); /* Ligne à rajouter */
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    background-color: rgba(52, 152, 219, 0.05);
+    cursor: pointer;
 }
 
 /* Overlays */
